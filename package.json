@@ -1,0 +1,35 @@
+{
+  "name": "birthday",
+  "version": "1.0.0",
+  "description": "Birthday email scheduler for friends",
+  "keywords": [
+    "birthday",
+    "github",
+    "express",
+    "json",
+    "jwt"
+  ],
+  "homepage": "https://github.com/nishur31/birthday#readme",
+  "bugs": {
+    "url": "https://github.com/nishur31/birthday/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nishur31/birthday.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "envf": "^3.1.1",
+    "express": "^5.2.1",
+    "morgan": "^1.10.1",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.13"
+  }
+}
