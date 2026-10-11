@@ -1,0 +1,31 @@
+# HBday System Context
+
+## Overview
+
+HBday is a Royal Birthday Automation Microservice and Interactive Dashboard. It schedules celebratory cards for contacts at 23:59:55 on the eve of their birthdays (5-second threshold before midnight) using event-driven scheduling (zero daily polling).
+
+## Technology Stack
+
+- **Runtime**: Bun (`bun v1.4.3+`) and Node.js (`v24+`)
+- **Backend**: Express.js with Helmet security headers, compression, and request sanitization
+- **Database**: PostgreSQL (Supabase / Prisma pooled connection) with local JSON mirror fallback
+- **Queue & Scheduler**: BullMQ with Upstash Redis (`rediss://...`)
+- **Email Delivery**: `@emailjs/nodejs` SDK using Public and Private API keys (`MAIL_PUB`, `MAIL_SEC`)
+- **Frontend**: Minimalist Slate Glassmorphism (Vanilla HTML, CSS, JavaScript, Lucide Icons) with Obsidian base and refined Indigo accents
+
+## Credentials & Configuration (.env)
+
+- `PORT`: 4000
+- `DATABASE_URL`: `postgres://...:5432/postgres?sslmode=require`
+- `REDIS_URL`: `rediss://default:...upstash.io:6379`
+- `MAIL_SEC`: `` (EmailJS Private Key)
+- `MAIL_PUB`: `` (EmailJS Public Key)
+- Optional: `EMAILJS_SERVICE_ID`, `EMAILJS_TEMPLATE_ID`, `SENDER_NAME`
+
+## Identity & Privacy Model
+
+- **Passkey**: `x-passkey` header generated client-side (`hbd_usr_<uuid>`) stored in `localStorage`.
+- Direct Passkey Input Box in navbar for instant view, enter/paste, copy, and key switching.
+- Each user directory is partitioned strictly by `user_key` in database tables.
+- Zero login/password friction with seamless device switching via Passkey restore.
+- Rate limits: 5 additions daily / 15 weekly per IP and Passkey.

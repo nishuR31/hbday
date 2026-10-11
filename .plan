@@ -1,0 +1,54 @@
+# HBday Implementation Plan
+
+## 1. Goal
+
+Simplify the UI/UX for end users by removing all developer-oriented telemetry and metrics from the default view. Introduce a client-side Passkey identity system (`x-passkey`) for serverless user isolation without login, add explicit Disclaimer and Anti-Abuse Privacy terms, migrate from `nodemailer` to the official `@emailjs/nodejs` SDK using configured public/private keys, and clean up unused files.
+
+## 2. Architecture & Tasks
+
+### A. UI/UX Simplification, Minimalist Theme & Test Mode
+
+- Strip all developer diagnostic metrics (Total Contacts, Today's Birthdays, Upcoming 30 Days, Emails Dispatched, BullMQ & Redis Queue, PostgreSQL / Database Storage) from the standard user layout with `hidden` and `display: none !important;`.
+- Move any developer telemetry exclusively behind the discrete 7-tap brand easter egg, ensuring it is 100% hidden by default.
+- Minimalist executive dark theme: obsidian slate (`#090d16`), subtle indigo/electric accents (`#4f46e5`, `#6366f1`), removing neon magenta ambient haze.
+- Fix all button styles and apply universal button resets to eliminate native white/gray button boxes.
+
+### B. User Passkey Identity System (`x-passkey`) & Direct Input Box
+
+- Dedicated Passkey Input Box in the navbar (`#header-passkey-input`):
+  - Displays the active passkey directly in an input box.
+  - Allows pasting/entering an existing passkey and pressing Enter or clicking "Load" to switch contacts.
+  - 1-click "Copy" button to save key.
+  - "New" button to generate a fresh passkey.
+- Transmitted via `x-passkey` header on all API requests.
+- Backend (`services/db.js` & `controllers/birthdayController.js`):
+  - Contacts isolated and queried strictly by `user_key`.
+  - Adding a contact tags it with the caller's `user_key`.
+  - Updating and deleting verifies contact ownership.
+
+### C. Disclaimer & Anti-Abuse Privacy Terms
+
+- Add a modal (`#modal-privacy-terms`) accessible via footer link and dialog notices:
+  - Explicit Disclaimer & Data Protection statement (celebrations only, zero data selling).
+  - "Do Not Misuse" clause: strictly forbids unsolicited spam, abusive messaging, mass scraping, or rate limit circumvention.
+  - Outlines the 5 daily / 15 weekly addition limits.
+
+### D. EmailJS SDK Migration
+
+- Replaced `nodemailer` with `@emailjs/nodejs@5.0.2`.
+- Read credentials from `.env`:
+  - `MAIL_PUB`: EmailJS Public Key / User ID (``).
+  - `MAIL_SEC`: EmailJS Private Key / Secret Key (``).
+  - `EMAILJS_SERVICE_ID` & `EMAILJS_TEMPLATE_ID` with sensible fallbacks.
+- Implement `@emailjs/nodejs` in `services/mailer.js` using `emailjs.send(...)` with template parameters.
+- Provide safe fallback simulation if service ID is not yet created on the EmailJS dashboard.
+
+### E. Code Cleanup & Verification
+
+- Removed unused `cronScheduler.js` and redundant import in `app.js` (replaced by BullMQ event-driven scheduling in `services/queueService.js`).
+- Uninstalled unused `node-cron` dependency from `package.json` and lockfile via `bun remove node-cron`.
+- Removed legacy `getCredentials` helper in `services/mailer.js`.
+- Removed unused `escapeHtml` import in `controllers/birthdayController.js`.
+- Cleaned up obsolete `#passkey-pill` and `#passkey-code-display` elements, event listeners, and CSS rules in `public/app.js` and `public/style.css`.
+- Updated `package.json` keywords to accurately reflect active tech stack (`emailjs`, `bullmq`, `redis`, `postgresql`).
+- Verified all 23 unit and integration tests passing under both Bun (`bun test`) and Node.js (`node --test`).

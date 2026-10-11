@@ -1,108 +1,149 @@
+# HBday • API Test Guide
 
-
-Birthday Automation Service — API Test Guide
-
-Base URL
-[http://localhost:4000/api/v1](http://localhost:4000/api/v1)
+Base URL: `http://localhost:4000/api/v1`
 
 ---
 
-Health Check
+### 1. Health Check
 
-```
-curl http://localhost:4000/
+```bash
+curl -s http://localhost:4000/api/v1/health
 ```
 
-Expected:
-
-```
+Expected Response:
+```json
 {
   "service": "Birthday Automation Service",
   "status": "running",
-  "version": "v1"
+  "version": "v1",
+  "timestamp": "2026-10-11T..."
 }
 ```
 
 ---
 
-1. Add a Birthday
+### 2. Dashboard Stats & Queue Metrics
 
-```
-curl -X POST http://localhost:4000/api/v1/add-dob \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Nishu","email":"nishu@test.com","dob":"2002-02-01"}'
+```bash
+curl -s http://localhost:4000/api/v1/stats
 ```
 
-Expected:
-
-```
-{ "success": true }
-```
-
----
-
-2. Get Today's Birthdays
-
-```
-curl http://localhost:4000/api/v1/birthdays/today
-```
-
----
-
-3. Get Upcoming Birthdays
-
-```
-curl http://localhost:4000/api/v1/birthdays/upcoming
-```
-
----
-
-4. Get Email Logs
-
-```
-curl http://localhost:4000/api/v1/logs
-```
-
----
-
-5. Send Test Email
-
-```
-curl -X POST http://localhost:4000/api/v1/send-test-mail \
-  -H "Content-Type: application/json" \
-  -d '{"email":"nishu@test.com"}'
-```
-
-Expected:
-
-```
-{ "sent": true }
-```
-
----
-
-6. Test Unknown Route
-
-```
-curl http://localhost:4000/api/v1/random
-```
-
-Expected:
-
-```
+Expected Response:
+```json
 {
-  "error": "Route not found",
-  "path": "/api/v1/random"
+  "totalUsers": 12,
+  "todayBirthdays": 1,
+  "upcomingIn30Days": 3,
+  "emailsDispatched": 5,
+  "mailerConfigured": true,
+  "queue": {
+    "active": true,
+    "configured": true,
+    "waiting": 0,
+    "activeJobs": 0,
+    "completed": 2,
+    "failed": 0,
+    "delayed": 0,
+    "status": "BullMQ + Upstash Redis (Online)"
+  },
+  "serverTime": "2026-10-11T..."
 }
 ```
 
 ---
 
-Quick Reset
+### 3. Add a Birthday Contact
 
+```bash
+curl -s -X POST http://localhost:4000/api/v1/add-dob \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Alex Rivers","email":"alex@example.com","dob":"1995-12-25"}'
 ```
-echo "[]" > data/birthdays.json
-echo "[]" > data/logs.json
+
+Expected Response:
+```json
+{
+  "success": true,
+  "message": "Birthday added for Alex Rivers!",
+  "user": {
+    "id": "...",
+    "name": "Alex Rivers",
+    "email": "alex@example.com",
+    "dob": "1995-12-25",
+    "isToday": false,
+    "daysLeft": 75,
+    "nextBirthday": "2026-12-25",
+    "currentAge": 30,
+    "turningAge": 31,
+    "zodiac": { "name": "Capricorn", "code": "CAP", "element": "Earth" }
+  }
+}
 ```
 
+---
 
+### 4. Get Upcoming Birthdays (Sorted Chronologically)
+
+```bash
+curl -s http://localhost:4000/api/v1/birthdays/upcoming
+```
+
+---
+
+### 5. Get Today's Birthdays
+
+```bash
+curl -s http://localhost:4000/api/v1/birthdays/today
+```
+
+---
+
+### 6. Update a Contact
+
+```bash
+curl -s -X PUT http://localhost:4000/api/v1/birthdays/<CONTACT_ID> \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Alex Rivers","email":"alex.rivers@example.com","dob":"1995-12-25"}'
+```
+
+---
+
+### 7. Delete a Contact
+
+```bash
+curl -s -X DELETE http://localhost:4000/api/v1/birthdays/<CONTACT_ID>
+```
+
+---
+
+### 8. Manually Run Birthday Worker Check
+
+```bash
+curl -s -X POST http://localhost:4000/api/v1/trigger-check
+```
+
+---
+
+### 9. Send Test Email
+
+```bash
+curl -s -X POST http://localhost:4000/api/v1/send-test-mail \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Tester","email":"test@example.com"}'
+```
+
+---
+
+### 10. View Delivery Logs
+
+```bash
+curl -s http://localhost:4000/api/v1/logs
+```
+
+---
+
+### 11. Clear Logs
+
+```bash
+curl -s -X DELETE http://localhost:4000/api/v1/logs
+```

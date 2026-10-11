@@ -1,0 +1,55 @@
+// Prisma v5 Schema for HBday
+// Powered by Prisma v5 (@prisma/client & prisma CLI)
+// No config file (prisma.config.ts) required in Prisma v5
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "linux-musl", "linux-musl-openssl-3.0.x", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x", "windows"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Birthday {
+  id          String    @id @default(cuid()) @db.VarChar(64)
+  name        String    @db.VarChar(255)
+  email       String    @db.VarChar(255)
+  dob         String    @db.VarChar(10)
+  untilYear   Int?      @map("until_year")
+  createdByIp String?   @map("created_by_ip") @db.VarChar(64)
+  userKey     String?   @map("user_key") @db.VarChar(128)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([email])
+  @@index([userKey])
+  @@map("birthdays")
+}
+
+model DeliveryLog {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(255)
+  email      String    @db.VarChar(255)
+  status     String    @db.VarChar(50)
+  type       String    @default("automatic") @db.VarChar(50)
+  turningAge Int?      @map("turning_age")
+  messageId  String?   @map("message_id") @db.VarChar(255)
+  error      String?   @db.Text
+  timestamp  DateTime  @default(now()) @db.Timestamptz
+
+  @@index([timestamp(sort: Desc)])
+  @@map("delivery_logs")
+}
+
+model RateLimit {
+  ip          String    @id @db.VarChar(64)
+  dailyCount  Int       @default(0) @map("daily_count")
+  dailyReset  DateTime  @map("daily_reset") @db.Timestamptz
+  weeklyCount Int       @default(0) @map("weekly_count")
+  weeklyReset DateTime  @map("weekly_reset") @db.Timestamptz
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("rate_limits")
+}

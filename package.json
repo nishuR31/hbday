@@ -1,35 +1,50 @@
 {
-  "name": "birthday",
-  "version": "1.0.0",
-  "description": "Birthday email scheduler for friends",
+  "name": "hbday",
+  "version": "1.1.0",
+  "description": "Birthday Automation Microservice and Interactive Dashboard",
   "keywords": [
     "birthday",
-    "github",
+    "scheduler",
     "express",
-    "json",
-    "jwt"
+    "dashboard",
+    "emailjs",
+    "bullmq",
+    "redis",
+    "postgresql"
   ],
-  "homepage": "https://github.com/nishur31/birthday#readme",
+  "homepage": "https://github.com/nishur31/hbday#readme",
   "bugs": {
-    "url": "https://github.com/nishur31/birthday/issues"
+    "url": "https://github.com/nishur31/hbday/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nishur31/birthday.git"
+    "url": "git+https://github.com/nishur31/hbday.git"
   },
   "license": "ISC",
-  "author": "",
+  "author": "nishur31",
   "type": "module",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "bun run app.js",
+    "dev": "bun --watch app.js",
+    "test": "bun --test test/*.test.js",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:studio": "prisma studio",
+    "build": "bun run prisma:generate"
   },
   "dependencies": {
+    "@emailjs/nodejs": "^5.0.2",
+    "@prisma/client": "5.22.0",
+    "bullmq": "^6.3.12",
+    "compression": "^1.8.2",
     "cors": "^2.8.6",
-    "envf": "^3.1.1",
     "express": "^5.2.1",
-    "morgan": "^1.10.1",
-    "node-cron": "^4.2.1",
-    "nodemailer": "^7.0.13"
+    "helmet": "^8.3.0",
+    "ioredis": "^6.0.0",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "prisma": "5.22.0"
   }
 }
